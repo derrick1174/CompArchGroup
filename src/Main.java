@@ -37,10 +37,20 @@ public class Main {
         int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2)); //log(base 2) of block size
         int numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        System.out.println("numIndexBits = " + numIndexBits+ "\nassocitvityVal = " + associativityVal +
-                "\nnumSets = " + numSets + "\nnumBlocks = " + numBlocks + "\nnumAddressBits = " + numAddressBits);
+        /*System.out.println("numIndexBits = " + numIndexBits+ "\nassocitvityVal = " + associativityVal +
+                "\nnumSets = " + numSets + "\nnumBlocks = " + numBlocks + "\nnumAddressBits = " + numAddressBits);*/
 
-        System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
+        
+    }
+
+    public static void createCache(){
+    	
+    	
+    }
+    
+    public static void printResults(){
+    	
+    	System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
         System.out.println("\nTrace File: " + fileName);
         System.out.println("\n----- Generic -----");
         System.out.println("Cache Size: " + cacheSize + " KB");
@@ -57,22 +67,24 @@ public class Main {
 
         System.out.println("\n----- Results -----");
         System.out.println("Cache Hit Rate: *** %");
-    }
-
-    public static void createCache(){
-    	
     	
     }
     
-    public static void printResults(){
+    public static void executeSim(){
     	
     	
     	
     }
     
-    public static void executeSim(){}
-    
-    public static void readTraceFile(){}
+    public static void readTraceFile(){
+    	
+    	//read in first line and split it with space as delimiter, get the address from position 2 and the length from position 1
+    	//read in second line and split it with space as delimiter, get destination address from position 1 and if it's not only zeros, save it into a variable maybe. 
+    	//Then note that the length of the data is 4 bytes. Don't know if that's important or not.
+    	//
+    	//do the same for the source address from position 4 and save it if it's not only zeros
+    	//Then note that the length of the data is 4 bytes. Don't know if that's important or not.
+    }
 
     public static void whichOne(String n, String output){
         switch (n){
