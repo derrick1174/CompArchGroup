@@ -23,6 +23,17 @@ public class Main {
             whichOne(args[i], args[i+1]);
         }
 
+        printResults();
+        readTraceFile();
+
+    }
+
+    public static void createCache(){
+
+
+    }
+
+    public static void printResults(){
         int associativityVal;
         if(associativity.equals("Direct Mapped")){
             associativityVal = 1;
@@ -30,6 +41,7 @@ public class Main {
         else{
             associativityVal = Integer.valueOf(associativity); //convert it to an int value for calculations
         }
+
         int cacheVal = Integer.valueOf(cacheSize) * 1024;
         int valBlockSize = Integer.valueOf(blockSize);
         int numSets = cacheVal/(valBlockSize*associativityVal); //cacheSize / (blockSize * associativity)
@@ -39,10 +51,8 @@ public class Main {
         int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2)); //log(base 2) of block size
         int numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        /*System.out.println("numIndexBits = " + numIndexBits+ "\nassocitvityVal = " + associativityVal +
-                "\nnumSets = " + numSets + "\nnumBlocks = " + numBlocks + "\nnumAddressBits = " + numAddressBits);*/
 
-        System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
+    	System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
         System.out.println("\nTrace File: " + fileName);
         System.out.println("\n----- Generic -----");
         System.out.println("Cache Size: " + cacheSize + " KB");
@@ -59,24 +69,25 @@ public class Main {
 
         System.out.println("\n----- Results -----");
         System.out.println("Cache Hit Rate: *** %");
-        readTraceFile();
+
     }
 
-    public static void createCache(){
-    	
-    	
+    public static void searchCache(){//accesses cache and determines hit or miss
+
     }
-    
-    public static void printResults(){
-    	
-    	
-    	
+
+    public static void replaceInCache(){//on a compulsory or conflict miss, places/replaces new value in cache
+
     }
-    
+
     public static void executeSim(){}
-    
-    public static void readTraceFile(){
-        try{
+
+    public static void readTraceFile() {
+        //skip empty lines
+        //read in first line of pair and skip it
+        //read in second line and split it with space as delimiter, get destination address from position 1 and perform a write if not only zeros.
+        //do the same for the source address from position 7 and perform a read if not only zeros.
+        try {
             // Open the file that is the first command line parameter
             FileInputStream fstream = new FileInputStream(fileName);
             // Get the object of DataInputStream
@@ -85,21 +96,21 @@ public class Main {
             String strLine;
             int count = 0;
             //Read File Line By Line
-            while ((strLine = br.readLine()) != null)   {
+            while ((strLine = br.readLine()) != null) {
                 // Print the content on the console
-                if(strLine.equals(""))
+                if (strLine.equals(""))
                     continue;
                 count++;
                 String[] words = strLine.split(" "); //split by spaces
-                for(int i = 0; i < words.length; i++){
-                    if(count > 20 || !words[6].equals("srcM:") || !words[0].equals("dstM:"))
+                for (int i = 0; i < words.length; i++) {
+                    if (count > 20 || !words[6].equals("srcM:") || !words[0].equals("dstM:"))
                         continue;
                     System.out.println(words[i] + " ");
                 }
             }
             //Close the input stream
             in.close();
-        }catch (Exception e){//Catch exception if any
+        } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
     }
