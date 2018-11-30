@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.io.*;
 
 public class Main {
 
@@ -10,7 +11,8 @@ public class Main {
 
     public static void main(String[] args){
 
-        HashMap<String, String> hashMap = new HashMap<>();
+        CacheObject cacheObject = new CacheObject();
+        HashMap<String, CacheObject> hashMap = new HashMap<>();
         /*HashMap functions:
         hashMap.put(key, value) - puts a value in the hashmap
         hashMap.remove(key) - removes the key and its associated value
@@ -37,8 +39,8 @@ public class Main {
         int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2)); //log(base 2) of block size
         int numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        System.out.println("numIndexBits = " + numIndexBits+ "\nassocitvityVal = " + associativityVal +
-                "\nnumSets = " + numSets + "\nnumBlocks = " + numBlocks + "\nnumAddressBits = " + numAddressBits);
+        /*System.out.println("numIndexBits = " + numIndexBits+ "\nassocitvityVal = " + associativityVal +
+                "\nnumSets = " + numSets + "\nnumBlocks = " + numBlocks + "\nnumAddressBits = " + numAddressBits);*/
 
         System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
         System.out.println("\nTrace File: " + fileName);
@@ -57,6 +59,7 @@ public class Main {
 
         System.out.println("\n----- Results -----");
         System.out.println("Cache Hit Rate: *** %");
+        readTraceFile();
     }
 
     public static void createCache(){
@@ -72,7 +75,34 @@ public class Main {
     
     public static void executeSim(){}
     
-    public static void readTraceFile(){}
+    public static void readTraceFile(){
+        try{
+            // Open the file that is the first command line parameter
+            FileInputStream fstream = new FileInputStream(fileName);
+            // Get the object of DataInputStream
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine;
+            int count = 0;
+            //Read File Line By Line
+            while ((strLine = br.readLine()) != null)   {
+                // Print the content on the console
+                if(strLine.equals(""))
+                    continue;
+                count++;
+                String[] words = strLine.split(" "); //split by spaces
+                for(int i = 0; i < words.length; i++){
+                    if(count > 20 || !words[6].equals("srcM:") || !words[0].equals("dstM:"))
+                        continue;
+                    System.out.println(words[i] + " ");
+                }
+            }
+            //Close the input stream
+            in.close();
+        }catch (Exception e){//Catch exception if any
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
 
     public static void whichOne(String n, String output){
         switch (n){
