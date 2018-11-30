@@ -34,6 +34,7 @@ public class Main {
         int numAddressBits = 32; //number of bits
         int numIndexBits = (int)(Math.log(numSets)/Math.log(2));
         int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2));
+        int numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
         System.out.println("associtvityVal = " + associativityVal +
                 "\nnumSets = " + numSets + "\nnumBlocks = " + numBlocks + "\nnumAddressBits = " + numAddressBits);
@@ -49,7 +50,7 @@ public class Main {
 
         System.out.println("\n----- Calculated Values ----- ");
         System.out.println("Total #Blocks: " + (int)(Math.pow(2, Integer.valueOf(blockSize))/1000) + " KB"); //2^block size KB
-        System.out.println("Tag Size: " + (numAddressBits - (numIndexBits + numOffsetBits)) + " bits"); //# of address bits minus the # of index bits, minus the # of offset bits (within the cache block).
+        System.out.println("Tag Size: " + numTagBits + " bits"); //# of address bits minus the # of index bits, minus the # of offset bits (within the cache block).
         System.out.println("Index Size: *** bits, Total Indices: ***");
         System.out.println("Implementation Memory Size: ***");
 
