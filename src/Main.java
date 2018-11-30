@@ -69,21 +69,20 @@ public class Main {
         System.out.println("Cache Hit Rate: *** %");
     	
     }
+
+    public static void searchCache(){//accesses cache and determines hit or miss
+    	
+    }
     
-    public static void executeSim(){
-    	
-    	
+    public static void replaceInCache(){//on a compulsory or conflict miss, places/replaces new value in cache
     	
     }
     
     public static void readTraceFile(){
-    	
-    	//read in first line and split it with space as delimiter, get the address from position 2 and the length from position 1
-    	//read in second line and split it with space as delimiter, get destination address from position 1 and if it's not only zeros, save it into a variable maybe. 
-    	//Then note that the length of the data is 4 bytes. Don't know if that's important or not.
-    	//
-    	//do the same for the source address from position 4 and save it if it's not only zeros
-    	//Then note that the length of the data is 4 bytes. Don't know if that's important or not.
+    	//skip empty lines
+    	//read in first line of pair and skip it
+    	//read in second line and split it with space as delimiter, get destination address from position 1 and perform a write if not only zeros. 
+    	//do the same for the source address from position 7 and perform a read if not only zeros.
     }
 
     public static void whichOne(String n, String output){
