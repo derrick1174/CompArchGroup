@@ -28,14 +28,16 @@ public class Main {
         else{
             associativityVal = Integer.valueOf(associativity); //convert it to an int value for calculations
         }
-        int numSets = Integer.valueOf(cacheSize)/(Integer.valueOf(blockSize)*associativityVal);
-        int numBlocks = (int)Math.ceil(numSets * associativityVal);
-        int numAddressBits = 32; //number of bits
-        int numIndexBits = (int)(Math.log(numSets)/Math.log(2));
-        int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2));
+        int cacheVal = Integer.valueOf(cacheSize) * 1024;
+        int valBlockSize = Integer.valueOf(blockSize);
+        int numSets = cacheVal/(valBlockSize*associativityVal); //cacheSize / (blockSize * associativity)
+        int numIndexBits = (int)(Math.log(numSets)/Math.log(2)); //log(base 2) of the number of sets
+        int numBlocks = (int)Math.ceil(numSets * associativityVal); //numSets * associativity
+        int numAddressBits = 32; //number of address bits
+        int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2)); //log(base 2) of block size
         int numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        System.out.println("associtvityVal = " + associativityVal +
+        System.out.println("numIndexBits = " + numIndexBits+ "\nassocitvityVal = " + associativityVal +
                 "\nnumSets = " + numSets + "\nnumBlocks = " + numBlocks + "\nnumAddressBits = " + numAddressBits);
 
         System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
@@ -50,7 +52,7 @@ public class Main {
         System.out.println("\n----- Calculated Values ----- ");
         System.out.println("Total #Blocks: " + numBlocks + " KB"); //2^block size KB
         System.out.println("Tag Size: " + numTagBits + " bits"); //# of address bits minus the # of index bits, minus the # of offset bits (within the cache block).
-        System.out.println("Index Size: *** bits, Total Indices: ***");
+        System.out.println("Index Size: " + numIndexBits + " bits, Total Indices: " + (int)(Math.pow(2, numIndexBits)/1000) + " KB");
         System.out.println("Implementation Memory Size: ***");
 
         System.out.println("\n----- Results -----");
