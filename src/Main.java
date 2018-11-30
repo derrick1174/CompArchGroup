@@ -21,7 +21,6 @@ public class Main {
             whichOne(args[i], args[i+1]);
         }
 
-        int numBlocks = (int)(Math.pow(2, Integer.valueOf(blockSize)));
         int associativityVal;
         if(associativity.equals("Direct Mapped")){
             associativityVal = 1;
@@ -30,7 +29,7 @@ public class Main {
             associativityVal = Integer.valueOf(associativity); //convert it to an int value for calculations
         }
         int numSets = Integer.valueOf(cacheSize)/(Integer.valueOf(blockSize)*associativityVal);
-        numBlocks = numSets * associativityVal;
+        int numBlocks = (int)Math.ceil(numSets * associativityVal);
         int numAddressBits = 32; //number of bits
         int numIndexBits = (int)(Math.log(numSets)/Math.log(2));
         int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2));
@@ -49,7 +48,7 @@ public class Main {
 
 
         System.out.println("\n----- Calculated Values ----- ");
-        System.out.println("Total #Blocks: " + (int)(Math.pow(2, Integer.valueOf(blockSize))/1000) + " KB"); //2^block size KB
+        System.out.println("Total #Blocks: " + numBlocks + " KB"); //2^block size KB
         System.out.println("Tag Size: " + numTagBits + " bits"); //# of address bits minus the # of index bits, minus the # of offset bits (within the cache block).
         System.out.println("Index Size: *** bits, Total Indices: ***");
         System.out.println("Implementation Memory Size: ***");
