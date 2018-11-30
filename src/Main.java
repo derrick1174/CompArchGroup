@@ -57,6 +57,20 @@ public class Main {
         System.out.println("Cache Hit Rate: *** %");
     }
 
+    public static void createCache(){
+    	
+    	
+    }
+    
+    public static void printResults(){
+    	
+    	
+    	
+    }
+    
+    public static void executeSim(){}
+    
+    public static void readTraceFile(){}
 
     public static void whichOne(String n, String output){
         switch (n){
