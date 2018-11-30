@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 public class Main {
 
     static String fileName = "";
@@ -8,11 +10,18 @@ public class Main {
 
     public static void main(String[] args){
 
-
+        HashMap<String, String> hashMap = new HashMap<>();
+        /*HashMap functions:
+        hashMap.put(key, value) - puts a value in the hashmap
+        hashMap.remove(key) - removes the key and its associated value
+        hashMap.containsKey(key) - returns t/f depending if it has the key
+        hashMap.get(key) - returns the value associated with the key
+         */
         for(int i = 1; i < args.length-1; i+=2){
             whichOne(args[i], args[i+1]);
         }
 
+        int numBlocks = (int)(Math.pow(2, Integer.valueOf(blockSize)));
         //System.out.println("File name: " + fileName + "\nCache Size: " + cacheSize + "\nBlock Size: "
         //+ blockSize + "\nAssociativity: " + associativity + "\nReplacement Policy: " + replacementPolicy);
 
@@ -47,7 +56,10 @@ public class Main {
             case "-b":
                 blockSize = output;
             case "-a":
-                associativity = output;
+                if(output.equals("1"))
+                    associativity = "Direct Mapped";
+                else
+                    associativity = output;
             case "-r":
                 replacementPolicy = output;
         }
