@@ -1,15 +1,10 @@
-public class CacheObject {
+public class directObject {
 
-    int value; //dirt or valid bit
-    String data;
+    int value; //dirty or valid bit
     String tag;
 
     public void setValue(int value) {
         this.value = value;
-    }
-
-    public void setData(String data){
-        this.data = data;
     }
 
     public void setTag(String tag) {
@@ -18,10 +13,6 @@ public class CacheObject {
 
     public int getValue() {
         return value;
-    }
-
-    public String getData() {
-        return data;
     }
 
     public String getTag() {

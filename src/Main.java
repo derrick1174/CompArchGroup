@@ -9,6 +9,9 @@ public class Main {
     static String associativity = "";
     static String replacementPolicy = ""; //may not be necessary
 
+
+
+
     public static void main(String[] args){
 
         HashMap<String, String> cache = new HashMap<>();
@@ -22,15 +25,32 @@ public class Main {
             whichOne(args[i], args[i+1]);
         }
 
-        initCache(cache);
+        //initCache(cache);
         printResults();
         readTraceFile();
 
     }
 
-    public static void initCache(){
-    	
-    	int associativityVal;
+    /*public static void initCache(){
+
+    	switch(associativityVal){
+    	case 1://direct
+    		break;
+    	case 2://2-way
+    		break;
+    	case 4://4-way
+    		break;
+    	case 8://8-way
+    		break;
+    	default://invalid associativity
+    		//system.exit();
+    		break;
+    	}
+
+    }*/
+
+    public static void printResults(){
+        int associativityVal;
         if(associativity.equals("Direct Mapped")){
             associativityVal = 1;
         }
@@ -46,25 +66,6 @@ public class Main {
         int numAddressBits = 32; //number of address bits
         int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2)); //log(base 2) of block size
         int numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
-
-    	switch(associativityVal){
-    	case 1://direct
-    		break;
-    	case 2://2-way
-    		break;
-    	case 4://4-way
-    		break;
-    	case 8://8-way
-    		break;
-    	default://invalid associativity
-    		sys.exit();
-    		break;
-    	}
-
-    }
-
-    public static void printResults(){
-        
 
     	System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
         System.out.println("\nTrace File: " + fileName);
