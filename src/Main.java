@@ -29,18 +29,18 @@ public class Main {
 
     }
 
-    public static void searchCache(){//accesses cache and determines hit or miss
-
-
+    public static void searchCache(String index){//accesses cache and determines hit or miss
+    	
+    	
     	//searchCache will call replaceInCache() when cache index is full and needs to replace
     }
-
+    
     public static void replaceInCache(){//on a compulsory or conflict miss, places/replaces new value in cache
-
+    	
     }
 
     public static void readTraceFile() {
-
+    	
     	//initialize
     	
     	int associativityVal;
@@ -75,9 +75,9 @@ public class Main {
     		sys.exit();
     		break;
     	}
-
+    	
     	//read trace file and execute
-
+    	
         //skip empty lines
         //read in first line of pair and skip it
         //read in second line and split it with space as delimiter, get destination address from position 1 and perform a write if not only zeros.
@@ -104,17 +104,17 @@ public class Main {
                 }
                 //if dstM isn't zero, call searchCache() to check for it in/add it to cache
                 //if srcM isn't zero, call searchCache() to check for it in/add it to cache
-
+                
             }
             //Close the input stream
             in.close();
         } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
-
+        
         //print result
-
-        System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
+        
+        System.out.println("Cache Simulator CS 3853 Fall 2018 â€“ Group #16");
         System.out.println("\nTrace File: " + fileName);
         System.out.println("\n----- Generic -----");
         System.out.println("Cache Size: " + cacheSize + " KB");
@@ -152,4 +152,3 @@ public class Main {
                 replacementPolicy = output;
         }
     }
-}
