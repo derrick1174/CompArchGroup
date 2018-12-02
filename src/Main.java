@@ -8,6 +8,9 @@ public class Main {
     static String blockSize = "";
     static String associativity = "";
     static String replacementPolicy = ""; //may not be necessary
+    static int compulMiss = 0;
+    static int confMiss = 0;
+    static int hits = 0;
 
     public static void main(String[] args){
 
@@ -22,13 +25,23 @@ public class Main {
             whichOne(args[i], args[i+1]);
         }
 
-        initCache(cache);
-        printResults();
         readTraceFile();
 
     }
 
-    public static void initCache(){
+    public static void searchCache(){//accesses cache and determines hit or miss
+    	
+    	
+    	//searchCache will call replaceInCache() when cache index is full and needs to replace
+    }
+    
+    public static void replaceInCache(){//on a compulsory or conflict miss, places/replaces new value in cache
+    	
+    }
+
+    public static void readTraceFile() {
+    	
+    	//initialize
     	
     	int associativityVal;
         if(associativity.equals("Direct Mapped")){
@@ -49,6 +62,8 @@ public class Main {
 
     	switch(associativityVal){
     	case 1://direct
+    		//create a object for one tag and one valid bit
+    		//then give that to hashMap to store as an entire index
     		break;
     	case 2://2-way
     		break;
@@ -60,39 +75,9 @@ public class Main {
     		sys.exit();
     		break;
     	}
-
-    }
-
-    public static void printResults(){
-        
-
-    	System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
-        System.out.println("\nTrace File: " + fileName);
-        System.out.println("\n----- Generic -----");
-        System.out.println("Cache Size: " + cacheSize + " KB");
-        System.out.println("Block Size: " + blockSize + " bytes");
-        System.out.println("Associativity: " + associativity);
-        System.out.println("Policy: " + replacementPolicy);
-
-
-        System.out.println("\n----- Calculated Values ----- ");
-        System.out.println("Total #Blocks: " + numBlocks + " KB"); //2^block size KB
-        System.out.println("Tag Size: " + numTagBits + " bits"); //# of address bits minus the # of index bits, minus the # of offset bits (within the cache block).
-        System.out.println("Index Size: " + numIndexBits + " bits, Total Indices: " + (int)(Math.pow(2, numIndexBits)/1000) + " KB");
-        System.out.println("Implementation Memory Size: ***");
-
-        System.out.println("\n----- Results -----");
-        System.out.println("Cache Hit Rate: *** %");
-    }
-
-    public static void searchCache(){//accesses cache and determines hit or miss
-    }
-    
-    public static void replaceInCache(){//on a compulsory or conflict miss, places/replaces new value in cache
     	
-    }
-
-    public static void readTraceFile() {
+    	//read trace file and execute
+    	
         //skip empty lines
         //read in first line of pair and skip it
         //read in second line and split it with space as delimiter, get destination address from position 1 and perform a write if not only zeros.
@@ -117,12 +102,35 @@ public class Main {
                         continue;
                     System.out.println(words[i] + " ");
                 }
+                //if dstM isn't zero, call searchCache() to check for it in/add it to cache
+                //if srcM isn't zero, call searchCache() to check for it in/add it to cache
+                
             }
             //Close the input stream
             in.close();
         } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
+        
+        //print result
+        
+        System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
+        System.out.println("\nTrace File: " + fileName);
+        System.out.println("\n----- Generic -----");
+        System.out.println("Cache Size: " + cacheSize + " KB");
+        System.out.println("Block Size: " + blockSize + " bytes");
+        System.out.println("Associativity: " + associativity);
+        System.out.println("Policy: " + replacementPolicy);
+
+
+        System.out.println("\n----- Calculated Values ----- ");
+        System.out.println("Total #Blocks: " + numBlocks + " KB"); //2^block size KB
+        System.out.println("Tag Size: " + numTagBits + " bits"); //# of address bits minus the # of index bits, minus the # of offset bits (within the cache block).
+        System.out.println("Index Size: " + numIndexBits + " bits, Total Indices: " + (int)(Math.pow(2, numIndexBits)/1000) + " KB");
+        System.out.println("Implementation Memory Size: ***");
+
+        System.out.println("\n----- Results -----");
+        System.out.println("Cache Hit Rate: *** %");
     }
 
     public static void whichOne(String n, String output){
