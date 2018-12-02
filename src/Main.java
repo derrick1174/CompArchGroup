@@ -97,7 +97,6 @@ public class Main {
             int count = 0;
             //Read File Line By Line
             while ((strLine = br.readLine()) != null) {
-                // Print the content on the console
                 if (strLine.equals(""))
                     continue;
                 count++;
