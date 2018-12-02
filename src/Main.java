@@ -12,7 +12,16 @@ public class Main {
     static int confMiss = 0;
     static int hits = 0;
 
-    public static void main(String[] args){
+    static int cacheVal = 0;
+    static int valBlockSize = 0;
+    static int numSets =  0; //cacheSize / (blockSize * associativity)
+    static int numIndexBits = 0; //log(base 2) of the number of sets
+    static int numBlocks = 0; //numSets * associativity
+    static int numAddressBits = 0; //number of address bits
+    static int numOffsetBits = 0; //log(base 2) of block size
+    static int numTagBits = 0;
+
+    public static void main(String[] args) {
 
         HashMap<String, String> cache = new HashMap<>();
         /*HashMap functions:
@@ -21,63 +30,69 @@ public class Main {
         hashMap.containsKey(key) - returns t/f depending if it has the key
         hashMap.get(key) - returns the value associated with the key
          */
-        for(int i = 1; i < args.length-1; i+=2){
-            whichOne(args[i], args[i+1]);
+        for (int i = 1; i < args.length - 1; i += 2) {
+            whichOne(args[i], args[i + 1]);
         }
 
         readTraceFile();
 
     }
 
-    public static void searchCache(String index){//accesses cache and determines hit or miss
-    	
-    	
-    	//searchCache will call replaceInCache() when cache index is full and needs to replace
+    //accesses cache and determines hit or miss
+    public static void searchCache(String input) {
+        //searchCache will call replaceInCache() when cache index is full and needs to replace
+        //take in the String (input) and convert to int->binary. Remove furthest right bits = # of offset bits (log2 of block size)
+        //convert remaining input into tag and index (two local variables)
+        //make a direct object with the tag and valid bit
+        //check to see if at the index the hashmap the valid bit of the object set to 0. If yes, compulsory miss - replace it and increment compulMiss
+        //if not, check the tag. If the tag matches, that's a hit. But if it doesn't match, conflict miss - replace it and increment confMiss
+        
+
     }
-    
-    public static void replaceInCache(){//on a compulsory or conflict miss, places/replaces new value in cache
-    	
+
+    //on a compulsory or conflict miss, places/replaces new value in cache
+    public static void replaceInCache() {
+        //take in the object and index we made in searchCache
+        //for Direct Map, put the object into the hashMap at key (index)
     }
 
     public static void readTraceFile() {
-    	
-    	//initialize
-    	
-    	int associativityVal;
-        if(associativity.equals("Direct Mapped")){
+
+        //initialize
+
+        int associativityVal;
+        if (associativity.equals("Direct Mapped")) {
             associativityVal = 1;
-        }
-        else{
+        } else {
             associativityVal = Integer.valueOf(associativity); //convert it to an int value for calculations
         }
+        cacheVal = Integer.valueOf(cacheSize) * 1024;
+        valBlockSize = Integer.valueOf(blockSize);
+        numSets = cacheVal / (valBlockSize * associativityVal); //cacheSize / (blockSize * associativity)
+        numIndexBits = (int) (Math.log(numSets) / Math.log(2)); //log(base 2) of the number of sets
+        numBlocks = (int) Math.ceil(numSets * associativityVal); //numSets * associativity
+        numAddressBits = 32; //number of address bits
+        numOffsetBits = (int) (Math.log(Integer.valueOf(blockSize)) / Math.log(2)); //log(base 2) of block size
+        numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        int cacheVal = Integer.valueOf(cacheSize) * 1024;
-        int valBlockSize = Integer.valueOf(blockSize);
-        int numSets = cacheVal/(valBlockSize*associativityVal); //cacheSize / (blockSize * associativity)
-        int numIndexBits = (int)(Math.log(numSets)/Math.log(2)); //log(base 2) of the number of sets
-        int numBlocks = (int)Math.ceil(numSets * associativityVal); //numSets * associativity
-        int numAddressBits = 32; //number of address bits
-        int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2)); //log(base 2) of block size
-        int numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
+        switch (associativityVal) {
+            case 1://direct
+                //create a object for one tag and one valid bit
+                //then give that to hashMap to store as an entire index
+                break;
+            case 2://2-way
+                break;
+            case 4://4-way
+                break;
+            case 8://8-way
+                break;
+            default://invalid associativity
+                //sys.exit();
+                break;
+        }
 
-    	switch(associativityVal){
-    	case 1://direct
-    		//create a object for one tag and one valid bit
-    		//then give that to hashMap to store as an entire index
-    		break;
-    	case 2://2-way
-    		break;
-    	case 4://4-way
-    		break;
-    	case 8://8-way
-    		break;
-    	default://invalid associativity
-    		sys.exit();
-    		break;
-    	}
-    	
-    	//read trace file and execute
-    	
+        //read trace file and execute
+
         //skip empty lines
         //read in first line of pair and skip it
         //read in second line and split it with space as delimiter, get destination address from position 1 and perform a write if not only zeros.
@@ -97,23 +112,26 @@ public class Main {
                     continue;
                 count++;
                 String[] words = strLine.split(" "); //split by spaces
-                for (int i = 0; i < words.length; i++) {
-                    if (count > 20 || !words[6].equals("srcM:") || !words[0].equals("dstM:"))
-                        continue;
-                    System.out.println(words[i] + " ");
+                if(words[0].equals("dstM:") && words[6].equals("srcM:")) {
+                    if(!words[1].equals("00000000")){
+                        searchCache(words[1]);
+                    }
+                    if(!words[7].equals("00000000")){
+                        searchCache(words[7]);
+                    }
                 }
                 //if dstM isn't zero, call searchCache() to check for it in/add it to cache
                 //if srcM isn't zero, call searchCache() to check for it in/add it to cache
-                
+
             }
             //Close the input stream
             in.close();
         } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
-        
+
         //print result
-        
+
         System.out.println("Cache Simulator CS 3853 Fall 2018 â€“ Group #16");
         System.out.println("\nTrace File: " + fileName);
         System.out.println("\n----- Generic -----");
@@ -126,15 +144,15 @@ public class Main {
         System.out.println("\n----- Calculated Values ----- ");
         System.out.println("Total #Blocks: " + numBlocks + " KB"); //2^block size KB
         System.out.println("Tag Size: " + numTagBits + " bits"); //# of address bits minus the # of index bits, minus the # of offset bits (within the cache block).
-        System.out.println("Index Size: " + numIndexBits + " bits, Total Indices: " + (int)(Math.pow(2, numIndexBits)/1000) + " KB");
+        System.out.println("Index Size: " + numIndexBits + " bits, Total Indices: " + (int) (Math.pow(2, numIndexBits) / 1000) + " KB");
         System.out.println("Implementation Memory Size: ***");
 
         System.out.println("\n----- Results -----");
         System.out.println("Cache Hit Rate: *** %");
     }
 
-    public static void whichOne(String n, String output){
-        switch (n){
+    public static void whichOne(String n, String output) {
+        switch (n) {
             case "-f":
                 fileName = output;
                 break;
@@ -144,7 +162,7 @@ public class Main {
             case "-b":
                 blockSize = output;
             case "-a":
-                if(output.equals("1"))
+                if (output.equals("1"))
                     associativity = "Direct Mapped";
                 else
                     associativity = output;
@@ -152,3 +170,4 @@ public class Main {
                 replacementPolicy = output;
         }
     }
+}
