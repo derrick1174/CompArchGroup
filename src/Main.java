@@ -1,5 +1,5 @@
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.io.*;
 
 public class Main {
@@ -48,6 +48,23 @@ public class Main {
         //check to see if at the index the hashmap the valid bit of the object set to 0. If yes, compulsory miss - replace it and increment compulMiss
         //if not, check the tag. If the tag matches, that's a hit. But if it doesn't match, conflict miss - replace it and increment confMiss
 
+        int decimal = Integer.parseInt(input, 16);
+        String binary = Integer.toBinaryString(decimal); //now have binary string
+
+        //TODO append '0' chars until total length = 32
+        char[] binaryArr =  new char[32];
+        int count = 0;
+        for(int i = 0; i < binaryArr.length; i++){
+            if(i > 32- binary.length()) {
+                binaryArr[i] = binary.charAt(count);
+                count++;
+            }
+            else{
+                binaryArr[i] = '0';
+            }
+        }
+        String string = new String(binaryArr);
+        //at this point we have consistent 32 length strings with leading 0s where needed
 
     }
 
@@ -136,7 +153,7 @@ public class Main {
 
         //print result
 
-        System.out.println("Cache Simulator CS 3853 Fall 2018 â€“ Group #16");
+        System.out.println("Cache Simulator CS 3853 Fall 2018 - Group #16");
         System.out.println("\nTrace File: " + fileName);
         System.out.println("\n----- Generic -----");
         System.out.println("Cache Size: " + cacheSize + " KB");
