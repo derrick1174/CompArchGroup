@@ -21,6 +21,7 @@ public class Main {
     static int numAddressBits = 0; //number of address bits
     static int numOffsetBits = 0; //log(base 2) of block size
     static int numTagBits = 0;
+    static int associativityVal = 0;
 
     public static void main(String[] args) {
 
@@ -40,7 +41,7 @@ public class Main {
     }
 
     //accesses cache and determines hit or miss
-    public static void searchCache(String input) {
+    public static void searchCache(String input, HashMap cache) {
         //searchCache will call replaceInCache() when cache index is full and needs to replace
         //take in the String (input) and convert to int->binary. Remove furthest right bits = # of offset bits (log2 of block size)
         //convert remaining input into tag and index (two local variables)
@@ -51,7 +52,6 @@ public class Main {
         int decimal = Integer.parseInt(input, 16);
         String binary = Integer.toBinaryString(decimal); //now have binary string
 
-        //TODO append '0' chars until total length = 32
         char[] binaryArr =  new char[32];
         int count = 0;
         for(int i = 0; i < binaryArr.length; i++){
@@ -65,7 +65,20 @@ public class Main {
         }
         String string = new String(binaryArr);
         //at this point we have consistent 32 length strings with leading 0s where needed
+        String withoutOffset = new String(string.substring(0, 32-numOffsetBits));
+        //tag is 0 until (32-numBitsOffset-indexSize)
+        String tagString = new String(withoutOffset.substring(0, 32-numOffsetBits - numIndexBits));
+        String indexString = new String(withoutOffset.substring(32-numOffsetBits - numIndexBits, withoutOffset.length()));
+        //at this point have the tag and index bits
 
+        //look inside cache (HashMap)
+        directObject[] inCache = new directObject[associativityVal];
+        //inCache = cache.get(indexString);
+        cache.get(indexString).equals(tagString);
+        if(cache.get(indexString).equals(tagString)){
+            //if inside here, it was a hit
+            hits++;
+        }
     }
 
     //on a compulsory or conflict miss, places/replaces new value in cache
@@ -77,7 +90,6 @@ public class Main {
     public static void readTraceFile() {
 
         //initialize
-        int associativityVal;
         if (associativity.equals("Direct Mapped")) {
             associativityVal = 1;
         } else {
@@ -92,20 +104,20 @@ public class Main {
         numOffsetBits = (int) (Math.log(Integer.valueOf(blockSize)) / Math.log(2)); //log(base 2) of block size
         numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        HashMap<Integer, directObject[]> cache = new HashMap<>();
+        HashMap<String, directObject[]> cache = new HashMap<>();
         if(!(associativityVal == 1 || associativityVal == 2 || associativityVal == 4 || associativityVal == 8))
             System.exit(1); //invalid associativity size, exit program
         directObject[] arr = new directObject[associativityVal];
         directObject dO = new directObject();
         dO.setValue(0);
-        dO.setTag(0);
+        dO.setTag("0");
         for(int i = 0 ; i < arr.length; i++){
             arr[i] = dO;
         }
         //at this point, array is full of empty directMapObjects
 
         for(int i = 0; i < Math.pow(2, numIndexBits); i++){
-            cache.put(i, arr);
+            cache.put(Integer.toString(i), arr);
         }
         //cache full of zero'd out arrays of the object
 
@@ -135,10 +147,10 @@ public class Main {
                 String[] words = strLine.split(" "); //split by spaces
                 if(words[0].equals("dstM:") && words[6].equals("srcM:")) {
                     if(!words[1].equals("00000000")){
-                        searchCache(words[1]);
+                        searchCache(words[1], cache);
                     }
                     if(!words[7].equals("00000000")){
-                        searchCache(words[7]);
+                        searchCache(words[7], cache);
                     }
                 }
                 //if dstM isn't zero, call searchCache() to check for it in/add it to cache
