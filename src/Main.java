@@ -29,7 +29,7 @@ public class Main {
 
     }
 
-    public static void searchCache(){//accesses cache and determines hit or miss
+    public static void searchCache(String index){//accesses cache and determines hit or miss
     	
     	
     	//searchCache will call replaceInCache() when cache index is full and needs to replace
@@ -114,7 +114,7 @@ public class Main {
         
         //print result
         
-        System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
+        System.out.println("Cache Simulator CS 3853 Fall 2018 â€“ Group #16");
         System.out.println("\nTrace File: " + fileName);
         System.out.println("\n----- Generic -----");
         System.out.println("Cache Size: " + cacheSize + " KB");
@@ -152,4 +152,3 @@ public class Main {
                 replacementPolicy = output;
         }
     }
-}
