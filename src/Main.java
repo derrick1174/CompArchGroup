@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.*;
 
@@ -23,7 +24,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        HashMap<String, String> cache = new HashMap<>();
+
         /*HashMap functions:
         hashMap.put(key, value) - puts a value in the hashmap
         hashMap.remove(key) - removes the key and its associated value
@@ -46,7 +47,7 @@ public class Main {
         //make a direct object with the tag and valid bit
         //check to see if at the index the hashmap the valid bit of the object set to 0. If yes, compulsory miss - replace it and increment compulMiss
         //if not, check the tag. If the tag matches, that's a hit. But if it doesn't match, conflict miss - replace it and increment confMiss
-        
+
 
     }
 
@@ -59,7 +60,6 @@ public class Main {
     public static void readTraceFile() {
 
         //initialize
-
         int associativityVal;
         if (associativity.equals("Direct Mapped")) {
             associativityVal = 1;
@@ -75,21 +75,25 @@ public class Main {
         numOffsetBits = (int) (Math.log(Integer.valueOf(blockSize)) / Math.log(2)); //log(base 2) of block size
         numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        switch (associativityVal) {
-            case 1://direct
-                //create a object for one tag and one valid bit
-                //then give that to hashMap to store as an entire index
-                break;
-            case 2://2-way
-                break;
-            case 4://4-way
-                break;
-            case 8://8-way
-                break;
-            default://invalid associativity
-                //sys.exit();
-                break;
+        HashMap<Integer, directObject[]> cache = new HashMap<>();
+        if(!(associativityVal == 1 || associativityVal == 2 || associativityVal == 4 || associativityVal == 8))
+            System.exit(1); //invalid associativity size, exit program
+        directObject[] arr = new directObject[associativityVal];
+        directObject dO = new directObject();
+        dO.setValue(0);
+        dO.setTag(0);
+        for(int i = 0 ; i < arr.length; i++){
+            arr[i] = dO;
         }
+        //at this point, array is full of empty directMapObjects
+
+        for(int i = 0; i < Math.pow(2, numIndexBits); i++){
+            cache.put(i, arr);
+        }
+        //cache full of zero'd out arrays of the object
+
+        //At this point have an empty cache at the associativtiy and cache size we need
+
 
         //read trace file and execute
 

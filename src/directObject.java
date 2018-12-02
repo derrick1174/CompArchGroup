@@ -1,13 +1,13 @@
 public class directObject {
 
     int value; //dirty or valid bit
-    String tag;
+    int tag;
 
     public void setValue(int value) {
         this.value = value;
     }
 
-    public void setTag(String tag) {
+    public void setTag(int tag) {
         this.tag = tag;
     }
 
@@ -15,7 +15,7 @@ public class directObject {
         return value;
     }
 
-    public String getTag() {
+    public int getTag() {
         return tag;
     }
 
