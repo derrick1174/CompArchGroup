@@ -11,8 +11,7 @@ public class Main {
 
     public static void main(String[] args){
 
-        CacheObject cacheObject = new CacheObject();
-        HashMap<String, CacheObject> hashMap = new HashMap<>();
+        HashMap<String, String> cache = new HashMap<>();
         /*HashMap functions:
         hashMap.put(key, value) - puts a value in the hashmap
         hashMap.remove(key) - removes the key and its associated value
@@ -23,18 +22,15 @@ public class Main {
             whichOne(args[i], args[i+1]);
         }
 
+        initCache(cache);
         printResults();
         readTraceFile();
 
     }
 
-    public static void createCache(){
-
-
-    }
-
-    public static void printResults(){
-        int associativityVal;
+    public static void initCache(){
+    	
+    	int associativityVal;
         if(associativity.equals("Direct Mapped")){
             associativityVal = 1;
         }
@@ -51,6 +47,24 @@ public class Main {
         int numOffsetBits = (int)(Math.log(Integer.valueOf(blockSize))/Math.log(2)); //log(base 2) of block size
         int numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
+    	switch(associativityVal){
+    	case 1://direct
+    		break;
+    	case 2://2-way
+    		break;
+    	case 4://4-way
+    		break;
+    	case 8://8-way
+    		break;
+    	default://invalid associativity
+    		sys.exit();
+    		break;
+    	}
+
+    }
+
+    public static void printResults(){
+        
 
     	System.out.println("Cache Simulator CS 3853 Fall 2018 – Group #16");
         System.out.println("\nTrace File: " + fileName);
@@ -69,18 +83,14 @@ public class Main {
 
         System.out.println("\n----- Results -----");
         System.out.println("Cache Hit Rate: *** %");
-
     }
 
     public static void searchCache(){//accesses cache and determines hit or miss
-
     }
-
+    
     public static void replaceInCache(){//on a compulsory or conflict miss, places/replaces new value in cache
-
+    	
     }
-
-    public static void executeSim(){}
 
     public static void readTraceFile() {
         //skip empty lines
