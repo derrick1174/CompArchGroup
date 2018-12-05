@@ -44,61 +44,10 @@ public class Main {
 
     }
 
-    //accesses cache and determines hit or miss
-    public static void searchCache(String input, HashMap<String, directObject> cache) {
-        //searchCache will call replaceInCache() when cache index is full and needs to replace
-        //take in the String (input) and convert to int->binary. Remove furthest right bits = # of offset bits (log2 of block size)
-        //convert remaining input into tag and index (two local variables)
-        //make a direct object with the tag and valid bit
-        //check to see if at the index the hashmap the valid bit of the object set to 0. If yes, compulsory miss - replace it and increment compulMiss
-        //if not, check the tag. If the tag matches, that's a hit. But if it doesn't match, conflict miss - replace it and increment confMiss
-
-        int decimal = Integer.parseInt(input, 16);
-        String binary = Integer.toBinaryString(decimal); //now have binary string
-
-        char[] binaryArr =  new char[32];
-        int count = 0;
-        for(int i = 0; i < binaryArr.length; i++){
-            if(i > 32- binary.length()) {
-                binaryArr[i] = binary.charAt(count);
-                count++;
-            }
-            else{
-                binaryArr[i] = '0';
-            }
-        }
-        String string = new String(binaryArr);
-        //at this point we have consistent 32 length strings with leading 0s where needed
-        String withoutOffset = new String(string.substring(0, 32-numOffsetBits));
-        //tag is 0 until (32-numBitsOffset-indexSize)
-        String tagString = new String(withoutOffset.substring(0, 32-numOffsetBits - numIndexBits));
-        String indexString = new String(withoutOffset.substring(32-numOffsetBits - numIndexBits, withoutOffset.length()));
-        //at this point have the tag and index bits
-
-        //look inside cache (HashMap)
-        //directObject[] inCache = new directObject[associativityVal];
-        //inCache = cache.get(indexString);
-        //cache.get(indexString).equals(tagString);
-        /*for(int i = 0; i < associativityVal; i++){
-            System.out.println("Valid bit at index " + i +": " + inCache[i].getValue() +
-                    "\nTag at index " + i + ": " + inCache[i].getTag());
-        }*/
-        /*cache.get(indexString).equals(tagString);
-        if(cache.get(indexString).equals(tagString)){
-            //if inside here, it was a hit
-            hits++;
-        }*/
-    }
-
-    //on a compulsory or conflict miss, places/replaces new value in cache
-    public static void replaceInCache() {
-        //take in the object and index we made in searchCache
-        //for Direct Map, put the object into the hashMap at key (index)
-    }
 
     public static void readTraceFile() {
 
-        //initialize
+        //initialize variables
         if (associativity.equals("Direct Mapped")) {
             associativityVal = 1;
         } else {
@@ -113,17 +62,12 @@ public class Main {
         numOffsetBits = (int) (Math.log(Integer.valueOf(blockSize)) / Math.log(2)); //log(base 2) of block size
         numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        //HashMap<String, directObject> cache = new HashMap<>();
         if(!(associativityVal == 1 || associativityVal == 2 || associativityVal == 4 || associativityVal == 8))
             System.exit(1); //invalid associativity size, exit program
 
 
         //read trace file and execute
-
-        //skip empty lines
-        //read in first line of pair and skip it
-        //read in second line and split it with space as delimiter, get destination address from position 1 and perform a write if not only zeros.
-        //do the same for the source address from position 7 and perform a read if not only zeros.
+        //looking for values following EIP and dst/src that are non-zero
         try {
             // Open the file that is the first command line parameter
             FileInputStream fstream = new FileInputStream(fileName);
@@ -141,7 +85,6 @@ public class Main {
                 String[] words = strLine.split(" "); //split by spaces
                 if(words[0].equals("dstM:") && words[6].equals("srcM:")) {
                     if(!words[1].equals("00000000")){
-                        //searchCache(words[1], cache);
                         if(associativityVal == 1)
                             directMapped(words[1]);
                         else if(associativityVal == 2)
@@ -153,17 +96,13 @@ public class Main {
                         }
                     }
                     if(!words[7].equals("00000000")){
-                        //searchCache(words[7], cache);
                         directMapped(words[7]);
                     }
                 }
                 if(words[0].equals("EIP")){
                     if(associativityVal == 1)
                         directMapped(words[2]);
-
                 }
-                //if dstM isn't zero, call searchCache() to check for it in/add it to cache
-                //if srcM isn't zero, call searchCache() to check for it in/add it to cache
 
             }
             //Close the input stream
@@ -201,16 +140,340 @@ public class Main {
         System.out.println("Cache Miss Rate: " + df.format(100-hitRate) + "%");
     }
 
-    private static void eightWayMapped(String word) {
+    private static void eightWayMapped(String address) {
+        int decimal = Integer.parseInt(address, 16);
+        String binary = Integer.toBinaryString(decimal); //now have binary string
 
+        char[] binaryArr =  new char[32];
+        int count = 0;
+        //make sure the length of each binary number is the same
+        for(int i = 0; i < binaryArr.length; i++){
+            if(i > 32- binary.length()) {
+                binaryArr[i] = binary.charAt(count);
+                count++;
+            }
+            else{
+                binaryArr[i] = '0';
+            }
+        }
+        String string = new String(binaryArr);
+        //at this point we have consistent 32 length strings with leading 0s where needed
+        String withoutOffset = new String(string.substring(0, 32-numOffsetBits));
+        //tag is 0 until (32-numBitsOffset-indexSize)
+        String tagString = new String(withoutOffset.substring(0, 32-numOffsetBits - numIndexBits));
+        String indexString = new String(withoutOffset.substring(32-numOffsetBits - numIndexBits, withoutOffset.length()));
+        //at this point have the tag and index bits
+
+        if(cache.containsKey(indexString)){ //check if the cache already has this index
+
+            //cache already has this index, check the valid bit
+            if(cache.get(indexString).getValue() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = createNew(tagString, 1);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue2() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag2().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue2(1);
+                    newObject.setTag2(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue3() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag3().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue3(1);
+                    newObject.setTag3(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue4() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag4().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue4(1);
+                    newObject.setTag4(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue5() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag5().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue5(1);
+                    newObject.setTag5(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue6() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag6().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue6(1);
+                    newObject.setTag6(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue7() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag7().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue7(1);
+                    newObject.setTag7(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue8() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag8().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue8(1);
+                    newObject.setTag8(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else{
+                //compulsory miss
+                compulMiss++;
+                directObject newObject = new directObject();
+                newObject.setValue2(1);
+                newObject.setTag2(tagString);
+                cache.put(indexString, newObject);
+                //System.out.println("Compulsory Miss. An index has been replaced at: " + indexString);
+            }
+        }else{ //cache doesn't contain this index, insert it
+            directObject newObject = createNew(tagString, 0);
+            newObject.setValue2(0);
+            cache.put(indexString, newObject);
+            //System.out.println("A new index has been inserted at: " + indexString);
+        }
     }
 
     private static void fourWayMapped(String address) {
+        int decimal = Integer.parseInt(address, 16);
+        String binary = Integer.toBinaryString(decimal); //now have binary string
 
+        char[] binaryArr =  new char[32];
+        int count = 0;
+        //make sure the length of each binary number is the same
+        for(int i = 0; i < binaryArr.length; i++){
+            if(i > 32- binary.length()) {
+                binaryArr[i] = binary.charAt(count);
+                count++;
+            }
+            else{
+                binaryArr[i] = '0';
+            }
+        }
+        String string = new String(binaryArr);
+        //at this point we have consistent 32 length strings with leading 0s where needed
+        String withoutOffset = new String(string.substring(0, 32-numOffsetBits));
+        //tag is 0 until (32-numBitsOffset-indexSize)
+        String tagString = new String(withoutOffset.substring(0, 32-numOffsetBits - numIndexBits));
+        String indexString = new String(withoutOffset.substring(32-numOffsetBits - numIndexBits, withoutOffset.length()));
+        //at this point have the tag and index bits
+
+        if(cache.containsKey(indexString)){ //check if the cache already has this index
+
+            //cache already has this index, check the valid bit
+            if(cache.get(indexString).getValue() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = createNew(tagString, 1);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue2() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag2().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue2(1);
+                    newObject.setTag2(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue3() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag3().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue3(1);
+                    newObject.setTag3(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue4() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag4().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue4(1);
+                    newObject.setTag4(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else{
+                //compulsory miss
+                compulMiss++;
+                directObject newObject = new directObject();
+                newObject.setValue2(1);
+                newObject.setTag2(tagString);
+                cache.put(indexString, newObject);
+                //System.out.println("Compulsory Miss. An index has been replaced at: " + indexString);
+            }
+        }else{ //cache doesn't contain this index, insert it
+            directObject newObject = createNew(tagString, 0);
+            newObject.setValue2(0);
+            cache.put(indexString, newObject);
+            //System.out.println("A new index has been inserted at: " + indexString);
+        }
     }
 
     private static void twoWayMapped(String address) {
+        int decimal = Integer.parseInt(address, 16);
+        String binary = Integer.toBinaryString(decimal); //now have binary string
 
+        char[] binaryArr =  new char[32];
+        int count = 0;
+        //make sure the length of each binary number is the same
+        for(int i = 0; i < binaryArr.length; i++){
+            if(i > 32- binary.length()) {
+                binaryArr[i] = binary.charAt(count);
+                count++;
+            }
+            else{
+                binaryArr[i] = '0';
+            }
+        }
+        String string = new String(binaryArr);
+        //at this point we have consistent 32 length strings with leading 0s where needed
+        String withoutOffset = new String(string.substring(0, 32-numOffsetBits));
+        //tag is 0 until (32-numBitsOffset-indexSize)
+        String tagString = new String(withoutOffset.substring(0, 32-numOffsetBits - numIndexBits));
+        String indexString = new String(withoutOffset.substring(32-numOffsetBits - numIndexBits, withoutOffset.length()));
+        //at this point have the tag and index bits
+
+        if(cache.containsKey(indexString)){ //check if the cache already has this index
+
+            //cache already has this index, check the valid bit
+            if(cache.get(indexString).getValue() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = createNew(tagString, 1);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else if(cache.get(indexString).getValue2() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag2().equals(tagString)){
+                    //System.out.println("A hit has been made!");
+                    hits++;
+                    //replacement policy goes here if necessary
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = new directObject();
+                    newObject.setValue2(1);
+                    newObject.setTag2(tagString);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict MISS!");
+                }
+            }else{
+                //compulsory miss
+                compulMiss++;
+                directObject newObject = new directObject();
+                newObject.setValue2(1);
+                newObject.setTag2(tagString);
+                cache.put(indexString, newObject);
+                //System.out.println("Compulsory Miss. An index has been replaced at: " + indexString);
+            }
+        }else{ //cache doesn't contain this index, insert it
+            directObject newObject = createNew(tagString, 0);
+            newObject.setValue2(0);
+            cache.put(indexString, newObject);
+            //System.out.println("A new index has been inserted at: " + indexString);
+        }
     }
 
     private static void directMapped(String address) {
@@ -238,19 +501,20 @@ public class Main {
         //at this point have the tag and index bits
 
         if(cache.containsKey(indexString)){ //check if the cache already has this index
+
             //cache already has this index, check the valid bit
             if(cache.get(indexString).getValue() == 1){
                 //valid bit is 1, so check if the tags match
                 if(cache.get(indexString).getTag().equals(tagString)){
                     //System.out.println("A hit has been made!");
                     hits++;
-                    //TODO: replacement policy
+                    //replacement policy goes here if necessary
                 }else{
                     //conflict miss
                     confMiss++;
                     directObject newObject = createNew(tagString, 1);
                     cache.put(indexString, newObject);
-                        System.out.println("Conflict MISS!");
+                    System.out.println("Conflict MISS!");
                 }
             }else{
                 //compulsory miss
