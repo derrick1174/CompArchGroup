@@ -112,7 +112,7 @@ public class Main {
         numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
         //HashMap<String, directObject> cache = new HashMap<>();
-        if(!(associativityVal == 1 || associativityVal == 2 || associativityVal == 4 || associativityVal == 8))
+        if(!(associativityVal == 1)) // || associativityVal == 2 || associativityVal == 4 || associativityVal == 8))
             System.exit(1); //invalid associativity size, exit program
 
 
@@ -176,7 +176,7 @@ public class Main {
         System.out.println("Implementation Memory Size: ***");
 
         System.out.println("\n----- Results -----");
-        System.out.println("Cache Hit Rate: *** %");
+        System.out.println("Cache Hit Rate: " + hits/(confMiss+compulMiss) + " %");
     }
 
     private static void directMapped(String address) {
@@ -211,21 +211,31 @@ public class Main {
                     System.out.println("A hit has been made!");
                     hits++;
                     //TODO: replacement policy
+                }else{
+                    //conflict miss
+                    confMiss++;
+                    directObject newObject = createNew(tagString, 1);
+                    cache.put(indexString, newObject);
+                    System.out.println("Conflict Miss. An index has been replaced at: " + indexString);
                 }
             }else{
-
+                //compulsory miss
+                compulMiss++;
+                directObject newObject = createNew(tagString, 1);
+                cache.put(indexString, newObject);
+                System.out.println("Compulsory Miss. An index has been replaced at: " + indexString);
             }
         }else{ //cache doesn't contain this index, insert it
-            directObject newObject = createNew(tagString);
+            directObject newObject = createNew(tagString, 0);
             cache.put(indexString, newObject);
             System.out.println("A new index has been inserted at: " + indexString);
         }
     }
 
-    private static directObject createNew(String tagString){
+    private static directObject createNew(String tagString, int valid){
         directObject newObject = new directObject();
         newObject.setTag(tagString);
-        newObject.setValue(1);
+        newObject.setValue(valid);
         return newObject;
     }
 
