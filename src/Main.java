@@ -157,6 +157,11 @@ public class Main {
                         directMapped(words[7]);
                     }
                 }
+                if(words[0].equals("EIP")){
+                    if(associativityVal == 1)
+                        directMapped(words[2]);
+
+                }
                 //if dstM isn't zero, call searchCache() to check for it in/add it to cache
                 //if srcM isn't zero, call searchCache() to check for it in/add it to cache
 
@@ -193,6 +198,7 @@ public class Main {
         System.out.println("---Compulsory Misses: " + compulMiss);
         System.out.println("---Conflict Misses: " + confMiss);
         System.out.println("Cache Hit Rate: " + df.format(hitRate) + "%");
+        System.out.println("Cache Miss Rate: " + df.format(100-hitRate) + "%");
     }
 
     private static void eightWayMapped(String word) {
