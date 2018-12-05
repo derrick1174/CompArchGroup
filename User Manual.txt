@@ -1,0 +1,40 @@
+This project was coded in Java.
+
+To compile, use "javac Main.java Sim.exe"
+
+To execute, the code requires mulitple switches, detailed next.
+Sample command line: "Sim.exe -f trace1.txt -s 1024 -b 16 -a 2 -r RR"
+
+
+-f filename.txt:
+	This switch will be followed by the tracefile in a .txt format.
+	This file should contain assembly language code saved from an
+	example process according to the format specified in the assignment.
+
+-s cacheSizeInKB:
+	This switch will accept the total size of the desired cache. It will
+	run with any value of at least one. There is not an upper limit, so it
+	is possible to make a huge cache that can crash your program. This 
+	value is divided by (blockSize * associativityVal) to determine 
+	number of sets. 
+
+-b blockSizeInBytes:
+	This switch will accept the block size in bytes, from 4 bytes to 32 bytes.
+
+-a associativityValue:
+	This switch accepts 1 for Direct Map implementation, 2 for two-way implementation, 
+	4 for four-way implementation, or 8 for eight-way implementation.
+	Any other values than 1, 2, 4, or 8 will prevent the code from running.
+
+-r replacementString:
+	This switch denotes the replacement policy that is desired.
+	It can be followed by one of several strings that pick the desired replacement policy.
+
+	-r RR:
+	This will cause replacement policy to be Round Robin style.
+
+	-r RND:
+	This will cause replacement policy to be Random style.
+
+	-r LRU:
+	This will cause replacement policy to be Least Recently Used style.
