@@ -23,6 +23,8 @@ public class Main {
     static int numTagBits = 0;
     static int associativityVal = 0;
 
+    static HashMap<String, directObject> cache = new HashMap<>();
+
     public static void main(String[] args) {
 
 
@@ -41,7 +43,7 @@ public class Main {
     }
 
     //accesses cache and determines hit or miss
-    public static void searchCache(String input, HashMap cache) {
+    public static void searchCache(String input, HashMap<String, directObject> cache) {
         //searchCache will call replaceInCache() when cache index is full and needs to replace
         //take in the String (input) and convert to int->binary. Remove furthest right bits = # of offset bits (log2 of block size)
         //convert remaining input into tag and index (two local variables)
@@ -72,13 +74,18 @@ public class Main {
         //at this point have the tag and index bits
 
         //look inside cache (HashMap)
-        directObject[] inCache = new directObject[associativityVal];
+        //directObject[] inCache = new directObject[associativityVal];
         //inCache = cache.get(indexString);
-        cache.get(indexString).equals(tagString);
+        //cache.get(indexString).equals(tagString);
+        /*for(int i = 0; i < associativityVal; i++){
+            System.out.println("Valid bit at index " + i +": " + inCache[i].getValue() +
+                    "\nTag at index " + i + ": " + inCache[i].getTag());
+        }*/
+        /*cache.get(indexString).equals(tagString);
         if(cache.get(indexString).equals(tagString)){
             //if inside here, it was a hit
             hits++;
-        }
+        }*/
     }
 
     //on a compulsory or conflict miss, places/replaces new value in cache
@@ -104,24 +111,9 @@ public class Main {
         numOffsetBits = (int) (Math.log(Integer.valueOf(blockSize)) / Math.log(2)); //log(base 2) of block size
         numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
-        HashMap<String, directObject[]> cache = new HashMap<>();
+        //HashMap<String, directObject> cache = new HashMap<>();
         if(!(associativityVal == 1 || associativityVal == 2 || associativityVal == 4 || associativityVal == 8))
             System.exit(1); //invalid associativity size, exit program
-        directObject[] arr = new directObject[associativityVal];
-        directObject dO = new directObject();
-        dO.setValue(0);
-        dO.setTag("0");
-        for(int i = 0 ; i < arr.length; i++){
-            arr[i] = dO;
-        }
-        //at this point, array is full of empty directMapObjects
-
-        for(int i = 0; i < Math.pow(2, numIndexBits); i++){
-            cache.put(Integer.toString(i), arr);
-        }
-        //cache full of zero'd out arrays of the object
-
-        //At this point have an empty cache at the associativtiy and cache size we need
 
 
         //read trace file and execute
@@ -147,10 +139,13 @@ public class Main {
                 String[] words = strLine.split(" "); //split by spaces
                 if(words[0].equals("dstM:") && words[6].equals("srcM:")) {
                     if(!words[1].equals("00000000")){
-                        searchCache(words[1], cache);
+                        //searchCache(words[1], cache);
+                        if(associativityVal == 1)
+                            directMapped(words[1]);
                     }
                     if(!words[7].equals("00000000")){
-                        searchCache(words[7], cache);
+                        //searchCache(words[7], cache);
+                        directMapped(words[7]);
                     }
                 }
                 //if dstM isn't zero, call searchCache() to check for it in/add it to cache
@@ -182,6 +177,56 @@ public class Main {
 
         System.out.println("\n----- Results -----");
         System.out.println("Cache Hit Rate: *** %");
+    }
+
+    private static void directMapped(String address) {
+        int decimal = Integer.parseInt(address, 16);
+        String binary = Integer.toBinaryString(decimal); //now have binary string
+
+        char[] binaryArr =  new char[32];
+        int count = 0;
+        //make sure the length of each binary number is the same
+        for(int i = 0; i < binaryArr.length; i++){
+            if(i > 32- binary.length()) {
+                binaryArr[i] = binary.charAt(count);
+                count++;
+            }
+            else{
+                binaryArr[i] = '0';
+            }
+        }
+        String string = new String(binaryArr);
+        //at this point we have consistent 32 length strings with leading 0s where needed
+        String withoutOffset = new String(string.substring(0, 32-numOffsetBits));
+        //tag is 0 until (32-numBitsOffset-indexSize)
+        String tagString = new String(withoutOffset.substring(0, 32-numOffsetBits - numIndexBits));
+        String indexString = new String(withoutOffset.substring(32-numOffsetBits - numIndexBits, withoutOffset.length()));
+        //at this point have the tag and index bits
+
+        if(cache.containsKey(indexString)){ //check if the cache already has this index
+            //cache already has this index, check the valid bit
+            if(cache.get(indexString).getValue() == 1){
+                //valid bit is 1, so check if the tags match
+                if(cache.get(indexString).getTag().equals(tagString)){
+                    System.out.println("A hit has been made!");
+                    hits++;
+                    //TODO: replacement policy
+                }
+            }else{
+
+            }
+        }else{ //cache doesn't contain this index, insert it
+            directObject newObject = createNew(tagString);
+            cache.put(indexString, newObject);
+            System.out.println("A new index has been inserted at: " + indexString);
+        }
+    }
+
+    private static directObject createNew(String tagString){
+        directObject newObject = new directObject();
+        newObject.setTag(tagString);
+        newObject.setValue(1);
+        return newObject;
     }
 
     public static void whichOne(String n, String output) {
