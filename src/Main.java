@@ -1,6 +1,7 @@
 import java.lang.reflect.Array;
 import java.util.*;
 import java.io.*;
+import java.text.*;
 
 public class Main {
 
@@ -11,7 +12,7 @@ public class Main {
     static String replacementPolicy = ""; //may not be necessary
     static int compulMiss = 0;
     static int confMiss = 0;
-    static int hits = 0;
+    static double hits = 0;
 
     static int cacheVal = 0;
     static int valBlockSize = 0;
@@ -22,6 +23,7 @@ public class Main {
     static int numOffsetBits = 0; //log(base 2) of block size
     static int numTagBits = 0;
     static int associativityVal = 0;
+    static double hitRate = 0;
 
     static HashMap<String, directObject> cache = new HashMap<>();
 
@@ -112,7 +114,7 @@ public class Main {
         numTagBits = numAddressBits - (numIndexBits + numOffsetBits);
 
         //HashMap<String, directObject> cache = new HashMap<>();
-        if(!(associativityVal == 1)) // || associativityVal == 2 || associativityVal == 4 || associativityVal == 8))
+        if(!(associativityVal == 1 || associativityVal == 2 || associativityVal == 4 || associativityVal == 8))
             System.exit(1); //invalid associativity size, exit program
 
 
@@ -142,6 +144,13 @@ public class Main {
                         //searchCache(words[1], cache);
                         if(associativityVal == 1)
                             directMapped(words[1]);
+                        else if(associativityVal == 2)
+                            twoWayMapped(words[1]);
+                        else if(associativityVal == 4)
+                            fourWayMapped(words[1]);
+                        else{
+                            eightWayMapped(words[1]);
+                        }
                     }
                     if(!words[7].equals("00000000")){
                         //searchCache(words[7], cache);
@@ -157,9 +166,11 @@ public class Main {
         } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
+        DecimalFormat df = new DecimalFormat("#.####");
+        hitRate = (hits/(hits+confMiss+compulMiss))*100;
+
 
         //print result
-
         System.out.println("Cache Simulator CS 3853 Fall 2018 - Group #16");
         System.out.println("\nTrace File: " + fileName);
         System.out.println("\n----- Generic -----");
@@ -176,7 +187,24 @@ public class Main {
         System.out.println("Implementation Memory Size: ***");
 
         System.out.println("\n----- Results -----");
-        System.out.println("Cache Hit Rate: " + hits/(confMiss+compulMiss) + " %");
+        System.out.println("Total Cache Acceses: " + (int)(hits+compulMiss+confMiss));
+        System.out.println("Cache Hits: " + (int)hits);
+        System.out.println("Cache Misses: " + (compulMiss+confMiss));
+        System.out.println("---Compulsory Misses: " + compulMiss);
+        System.out.println("---Conflict Misses: " + confMiss);
+        System.out.println("Cache Hit Rate: " + df.format(hitRate) + "%");
+    }
+
+    private static void eightWayMapped(String word) {
+
+    }
+
+    private static void fourWayMapped(String address) {
+
+    }
+
+    private static void twoWayMapped(String address) {
+
     }
 
     private static void directMapped(String address) {
@@ -208,7 +236,7 @@ public class Main {
             if(cache.get(indexString).getValue() == 1){
                 //valid bit is 1, so check if the tags match
                 if(cache.get(indexString).getTag().equals(tagString)){
-                    System.out.println("A hit has been made!");
+                    //System.out.println("A hit has been made!");
                     hits++;
                     //TODO: replacement policy
                 }else{
@@ -216,19 +244,19 @@ public class Main {
                     confMiss++;
                     directObject newObject = createNew(tagString, 1);
                     cache.put(indexString, newObject);
-                    System.out.println("Conflict Miss. An index has been replaced at: " + indexString);
+                        System.out.println("Conflict MISS!");
                 }
             }else{
                 //compulsory miss
                 compulMiss++;
                 directObject newObject = createNew(tagString, 1);
                 cache.put(indexString, newObject);
-                System.out.println("Compulsory Miss. An index has been replaced at: " + indexString);
+                //System.out.println("Compulsory Miss. An index has been replaced at: " + indexString);
             }
         }else{ //cache doesn't contain this index, insert it
             directObject newObject = createNew(tagString, 0);
             cache.put(indexString, newObject);
-            System.out.println("A new index has been inserted at: " + indexString);
+            //System.out.println("A new index has been inserted at: " + indexString);
         }
     }
 
